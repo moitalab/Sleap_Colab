@@ -12,8 +12,8 @@ All four notebooks run the exact same pipeline (SLEAP inference + Bonsai post-pr
 
 | Notebook | Environment | Model source |
 | :--- | :--- | :--- |
-| `Colab_SLEAP_AI_GITHUB.ipynb` | Google Colab (Tesla T4 GPU) | Clones the trained model straight from the [moitalab/Sleap_Colab](https://github.com/moitalab/Sleap_Colab) GitHub repository. |
-| `Colab_SLEAP_AI_DRIVE.ipynb` | Google Colab (Tesla T4 GPU) | Loads the trained model from a folder in your own Google Drive, picked with a file chooser — no GitHub access needed. |
+| `Colab_SLEAP_AI_FINAL_GITHUB.ipynb` | Google Colab (Tesla T4 GPU) | Clones the trained model straight from the [moitalab/Sleap_Colab](https://github.com/moitalab/Sleap_Colab) GitHub repository. |
+| `Colab_SLEAP_AI_FINAL_DRIVE.ipynb` | Google Colab (Tesla T4 GPU) | Loads the trained model from a folder in your own Google Drive, picked with a file chooser — no GitHub access needed. |
 | `SLEAP_Local.ipynb` | Local (Windows / macOS / Linux) | Reads the model from the `Sleap_Model/` folder next to the notebook (populated by `setup_env` via a GitHub clone). |
 | `SLEAP_Local_Pasta.ipynb` | Local (Windows / macOS / Linux) | Reads the model from any local folder you point it at — no GitHub dependency at all. |
 
