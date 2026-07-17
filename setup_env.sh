@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SLEAP Pipeline - Environment Setup (macOS / Linux)
-# Moita Lab - Champalimaud Foundation
+# Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 #
 # NOTE: this is a best-effort adaptation of setup_env.bat / setup_env.ps1
 # (the original, tested Windows setup script). It has NOT been run on a
@@ -22,7 +22,7 @@ set -e
 echo ""
 echo "====================================================="
 echo " SLEAP Pipeline - Environment Setup (macOS / Linux)"
-echo " Moita Lab - Champalimaud Foundation"
+echo " Rodrigo Garrido - Moita Lab - Champalimaud Foundation"
 echo "====================================================="
 echo ""
 echo " This script installs everything automatically."

@@ -105,4 +105,4 @@ The generated CSV files (one per video, in `PostProcessing/Pose/`) are structure
 * **Official Documentation:** [sleap.ai](https://sleap.ai/)
 
 ---
-**Developed by Rodrigo Garrido / Moita Lab**
+**Developed by Rodrigo Garrido · Moita Lab · Champalimaud Foundation**

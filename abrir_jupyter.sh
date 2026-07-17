@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Opens Jupyter Notebook with the sleap_env kernel (macOS / Linux)
-# Moita Lab - Champalimaud Foundation
+# Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 #
 # NOTE: best-effort adaptation of abrir_jupyter.bat / abrir_jupyter.ps1,
 # not yet run on a real Mac or Linux machine. Unlike on Windows, no PATH
