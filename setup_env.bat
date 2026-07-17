@@ -4,7 +4,7 @@ setlocal EnableDelayedExpansion
 echo.
 echo =====================================================
 echo  SLEAP Pipeline - Setup do Ambiente (Windows)
-echo  Moita Lab - Champalimaud Foundation
+echo  Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 echo =====================================================
 echo.
 echo  Este script instala tudo automaticamente.

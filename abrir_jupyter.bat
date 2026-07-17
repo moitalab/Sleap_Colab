@@ -1,4 +1,5 @@
 @echo off
+:: Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 setlocal EnableDelayedExpansion
 
 :: Encontrar conda
