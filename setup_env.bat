@@ -3,35 +3,35 @@ setlocal EnableDelayedExpansion
 
 echo.
 echo =====================================================
-echo  SLEAP Pipeline - Setup do Ambiente (Windows)
+echo  SLEAP Pipeline - Environment Setup (Windows)
 echo  Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 echo =====================================================
 echo.
-echo  Este script instala tudo automaticamente.
-echo  Nao e necessario instalar nada manualmente.
-echo  Demora 15-25 minutos na primeira vez.
+echo  This script installs everything automatically.
+echo  Nothing needs to be installed manually beforehand.
+echo  First run takes about 15-25 minutes.
 echo.
 echo =====================================================
-echo  AVISO: GPU NVIDIA
+echo  WARNING: NVIDIA GPU
 echo =====================================================
 echo.
-echo  GPU NVIDIA detectada   : 2-10 minutos por video
-echo  Sem GPU (CPU apenas)   : 1-4 HORAS por video
+echo  NVIDIA GPU detected    : 2-10 minutes per video
+echo  No GPU (CPU only)      : 1-4 HOURS per video
 echo.
-echo  (o pipeline funciona nos dois casos)
+echo  (the pipeline works either way)
 echo =====================================================
 echo.
 pause
 
 :: ================================================================
-:: 0. ENCONTRAR OU INSTALAR CONDA
+:: 0. FIND OR INSTALL CONDA
 :: ================================================================
 echo.
-echo [0/4] A verificar conda...
+echo [0/4] Checking for conda...
 
 set "CONDA_ROOT="
 
-:: Verificar localizacoes comuns (do mais provavel para o menos)
+:: Check common installation paths (from most to least likely)
 for %%P in (
     "%UserProfile%\miniconda3"
     "%UserProfile%\Miniconda3"
@@ -47,75 +47,75 @@ for %%P in (
     )
 )
 
-:: Conda nao encontrado - instalar Miniconda automaticamente
-echo  Conda nao encontrado. A instalar Miniconda...
-echo  (descarregar ~90MB - aguarda)
+:: Conda not found - install Miniconda automatically
+echo  Conda not found. Installing Miniconda...
+echo  (downloading ~90MB - please wait)
 echo.
 
 set "CONDA_ROOT=%UserProfile%\miniconda3"
 set "INSTALLER=%TEMP%\miniconda_setup.exe"
 
-:: Tentar descarregar com curl (Windows 10+)
+:: Try downloading with curl (Windows 10+)
 curl -# -L "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" -o "!INSTALLER!" 2>nul
 if not exist "!INSTALLER!" (
-    echo  curl falhou - a tentar via PowerShell...
+    echo  curl failed - trying via PowerShell...
     powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe' -OutFile '!INSTALLER!'"
 )
 if not exist "!INSTALLER!" (
     echo.
-    echo  ERRO: Nao foi possivel descarregar o Miniconda.
-    echo  Verifica a ligacao a internet e tenta novamente.
+    echo  ERROR: Could not download Miniconda.
+    echo  Check your internet connection and try again.
     pause
     exit /b 1
 )
 
-echo  A instalar Miniconda em: !CONDA_ROOT!
+echo  Installing Miniconda to: !CONDA_ROOT!
 "!INSTALLER!" /InstallationType=JustMe /RegisterPython=0 /S "/D=!CONDA_ROOT!"
 del "!INSTALLER!" >nul 2>&1
 
 if not exist "!CONDA_ROOT!\Scripts\conda.exe" (
     echo.
-    echo  ERRO: Instalacao do Miniconda falhou.
+    echo  ERROR: Miniconda installation failed.
     pause
     exit /b 1
 )
-echo  OK - Miniconda instalado.
+echo  OK - Miniconda installed.
 
 :conda_found
 set "CONDA_EXE=!CONDA_ROOT!\Scripts\conda.exe"
 echo  OK - Conda: !CONDA_ROOT!
 
 :: ================================================================
-:: 1. INSTALAR MAMBA
+:: 1. INSTALL MAMBA
 :: ================================================================
 echo.
-echo [1/4] A instalar mamba (isto pode demorar alguns minutos)...
+echo [1/4] Installing mamba (this can take a few minutes)...
 
 "!CONDA_EXE!" install -y -n base -c conda-forge mamba
 
-:: No Windows o mamba instala como .bat (nao .exe)
+:: On Windows mamba installs as a .bat file (not .exe)
 set "SOLVER=!CONDA_EXE!"
 if exist "!CONDA_ROOT!\Scripts\mamba.bat" (
     set "SOLVER=!CONDA_ROOT!\Scripts\mamba.bat"
-    echo  OK - mamba instalado.
+    echo  OK - mamba installed.
 ) else if exist "!CONDA_ROOT!\condabin\mamba.bat" (
     set "SOLVER=!CONDA_ROOT!\condabin\mamba.bat"
-    echo  OK - mamba instalado.
+    echo  OK - mamba installed.
 ) else (
-    echo  AVISO: mamba.bat nao encontrado - a usar conda diretamente.
+    echo  WARNING: mamba.bat not found - using conda directly.
 )
 
 :: ================================================================
-:: 2. CRIAR AMBIENTE sleap_env
+:: 2. CREATE sleap_env ENVIRONMENT
 :: ================================================================
 echo.
-echo [2/4] A criar ambiente sleap_env...
-echo       (pode demorar 10-20 minutos)
+echo [2/4] Creating sleap_env environment...
+echo        (this can take 10-20 minutes)
 echo.
 
 "!CONDA_EXE!" env list 2>nul | findstr /C:"sleap_env" >nul
 if %errorlevel%==0 (
-    echo  Ambiente sleap_env ja existe - a saltar.
+    echo  sleap_env environment already exists - skipping.
     goto :kernel
 )
 
@@ -135,50 +135,50 @@ if %errorlevel%==0 (
 
 if %errorlevel% neq 0 (
     echo.
-    echo  ERRO: Falhou a criacao do ambiente.
-    echo  Verifica a ligacao a internet e tenta novamente.
+    echo  ERROR: Failed to create environment.
+    echo  Check your internet connection and try again.
     pause
     exit /b 1
 )
 echo.
-echo  OK - Ambiente sleap_env criado.
+echo  OK - sleap_env environment created.
 
-:: Corrigir webcolors (versao nova incompativel com Python 3.7)
+:: Fix webcolors (newer version syntax incompatible with Python 3.7)
 "!CONDA_EXE!" run -n sleap_env pip install -q "webcolors==1.11.1"
 
-:: Reinstalar Pillow via pip (wheel bundla DLLs no Windows, evita erros de DLL)
+:: Reinstall Pillow via pip (wheel bundles DLLs on Windows, avoiding DLL load failures)
 "!CONDA_EXE!" run -n sleap_env pip install -q --force-reinstall "pillow<10"
 
-:: Corrigir aviso requests/charset-normalizer
+:: Fix requests/charset-normalizer warning
 "!CONDA_EXE!" run -n sleap_env pip install -q "charset-normalizer<3"
 
 :: ================================================================
-:: 3. REGISTAR KERNEL NO JUPYTER
+:: 3. REGISTER JUPYTER KERNEL
 :: ================================================================
 :kernel
 echo.
-echo [3/4] A registar kernel no Jupyter...
+echo [3/4] Registering Jupyter kernel...
 
 "!CONDA_EXE!" run -n sleap_env python -m ipykernel install --user --name sleap_env --display-name "Python (sleap_env)"
 if %errorlevel%==0 (
-    echo  OK - Kernel "Python (sleap_env)" registado.
+    echo  OK - Kernel "Python (sleap_env)" registered.
 ) else (
-    echo  AVISO: Falhou o registo do kernel. Tenta manualmente depois:
-    echo         conda activate sleap_env
-    echo         python -m ipykernel install --user --name sleap_env
+    echo  WARNING: Kernel registration failed. Try manually afterwards:
+    echo          conda activate sleap_env
+    echo          python -m ipykernel install --user --name sleap_env
 )
 
 :: ================================================================
-:: 4. DESCARREGAR MODELO DO GITHUB
+:: 4. DOWNLOAD MODEL FROM GITHUB
 :: ================================================================
 echo.
-echo [4/4] A descarregar modelo SLEAP (Moita Lab)...
+echo [4/4] Downloading SLEAP model (Moita Lab)...
 
 set "SCRIPT_DIR=%~dp0"
 if "!SCRIPT_DIR:~-1!"=="\" set "SCRIPT_DIR=!SCRIPT_DIR:~0,-1!"
 
 if exist "!SCRIPT_DIR!\Sleap_Model\.git" (
-    echo  Modelo ja existe. A verificar atualizacoes...
+    echo  Model already exists. Checking for updates...
     cd /d "!SCRIPT_DIR!\Sleap_Model"
     git pull >nul 2>&1
     cd /d "!SCRIPT_DIR!"
@@ -192,35 +192,35 @@ if %errorlevel%==0 (
     if %errorlevel%==0 goto :done
 )
 
-:: Sem git - usar PowerShell para descarregar ZIP
-echo  git nao encontrado - a descarregar ZIP...
+:: No git found - use PowerShell to download ZIP
+echo  git not found - downloading ZIP instead...
 set "MODEL_ZIP=%TEMP%\sleap_model.zip"
 powershell -NoProfile -Command "$ProgressPreference='SilentlyContinue'; Invoke-WebRequest 'https://github.com/moitalab/Sleap_Colab/archive/refs/heads/main.zip' -OutFile '!MODEL_ZIP!'"
 if exist "!MODEL_ZIP!" (
     powershell -NoProfile -Command "Expand-Archive -Path '!MODEL_ZIP!' -DestinationPath '!SCRIPT_DIR!' -Force"
     if exist "!SCRIPT_DIR!\Sleap_Colab-main" rename "!SCRIPT_DIR!\Sleap_Colab-main" "Sleap_Model"
     del "!MODEL_ZIP!" >nul 2>&1
-    echo  OK - Modelo extraido.
+    echo  OK - Model extracted.
 ) else (
-    echo  AVISO: Nao foi possivel descarregar o modelo.
-    echo         Descarrega manualmente: https://github.com/moitalab/Sleap_Colab
-    echo         e coloca a pasta com o nome "Sleap_Model" ao lado deste script.
+    echo  WARNING: Could not download the model.
+    echo          Download manually: https://github.com/moitalab/Sleap_Colab
+    echo          and place the folder named "Sleap_Model" next to this script.
 )
 
 :done
 echo.
 echo =====================================================
-echo  Setup concluido!
+echo  Setup complete!
 echo =====================================================
 echo.
-echo  Para comecar:
+echo  To get started:
 echo.
-echo  1. Abre um novo Prompt de Comando e corre:
+echo  1. Open a new Command Prompt and run:
 echo        !CONDA_ROOT!\Scripts\conda.exe run -n sleap_env jupyter lab
 echo.
-echo  2. Abre SLEAP_Local.ipynb
-echo  3. Seleciona o kernel "Python (sleap_env)"
-echo  4. Preenche a celula de configuracao e corre os 3 passos
+echo  2. Open SLEAP_Local.ipynb
+echo  3. Select the "Python (sleap_env)" kernel
+echo  4. Fill in the configuration cell and run the 3 steps
 echo.
 echo =====================================================
 pause

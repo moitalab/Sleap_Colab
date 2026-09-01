@@ -1,36 +1,36 @@
 #Requires -Version 5.1
 <#
-  SLEAP Pipeline - Setup do Ambiente (Windows)
+  SLEAP Pipeline - Environment Setup (Windows)
   Rodrigo Garrido - Moita Lab - Champalimaud Foundation
 #>
 
 Write-Host ""
 Write-Host "====================================================="
-Write-Host " SLEAP Pipeline - Setup do Ambiente (Windows)"
+Write-Host " SLEAP Pipeline - Environment Setup (Windows)"
 Write-Host " Rodrigo Garrido - Moita Lab - Champalimaud Foundation"
 Write-Host "====================================================="
 Write-Host ""
-Write-Host " Este script instala tudo automaticamente."
-Write-Host " Nao e necessario instalar nada manualmente."
-Write-Host " Demora 15-25 minutos na primeira vez."
+Write-Host " This script installs everything automatically."
+Write-Host " Nothing needs to be installed manually beforehand."
+Write-Host " First run takes about 15-25 minutes."
 Write-Host ""
 Write-Host "====================================================="
-Write-Host " AVISO: GPU NVIDIA"
+Write-Host " WARNING: NVIDIA GPU"
 Write-Host "====================================================="
 Write-Host ""
-Write-Host " GPU NVIDIA detectada   : 2-10 minutos por video"
-Write-Host " Sem GPU (CPU apenas)   : 1-4 HORAS por video"
+Write-Host " NVIDIA GPU detected    : 2-10 minutes per video"
+Write-Host " No GPU (CPU only)      : 1-4 HOURS per video"
 Write-Host ""
-Write-Host " (o pipeline funciona nos dois casos)"
+Write-Host " (the pipeline works either way)"
 Write-Host "====================================================="
 Write-Host ""
-Read-Host "Prime ENTER para continuar"
+Read-Host "Press ENTER to continue"
 
 # ================================================================
-# 0. ENCONTRAR OU INSTALAR CONDA
+# 0. FIND OR INSTALL CONDA
 # ================================================================
 Write-Host ""
-Write-Host "[0/4] A verificar conda..."
+Write-Host "[0/4] Checking for conda..."
 
 $condaRoot = $null
 $candidates = @(
@@ -50,8 +50,8 @@ foreach ($candidate in $candidates) {
 }
 
 if (-not $condaRoot) {
-    Write-Host " Conda nao encontrado. A instalar Miniconda..."
-    Write-Host " (descarregar ~90MB - aguarda)"
+    Write-Host " Conda not found. Installing Miniconda..."
+    Write-Host " (downloading ~90MB - please wait)"
     Write-Host ""
 
     $condaRoot = "$env:UserProfile\miniconda3"
@@ -61,59 +61,59 @@ if (-not $condaRoot) {
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe' -OutFile $installer
     } catch {
-        Write-Host " ERRO: Nao foi possivel descarregar o Miniconda."
-        Write-Host " Verifica a ligacao a internet e tenta novamente."
-        Read-Host "Prime ENTER para sair"
+        Write-Host " ERROR: Could not download Miniconda."
+        Write-Host " Check your internet connection and try again."
+        Read-Host "Press ENTER to exit"
         exit 1
     }
 
-    Write-Host " A instalar Miniconda em: $condaRoot"
+    Write-Host " Installing Miniconda to: $condaRoot"
     Start-Process -FilePath $installer -ArgumentList "/InstallationType=JustMe", "/RegisterPython=0", "/S", "/D=$condaRoot" -Wait
     Remove-Item $installer -ErrorAction SilentlyContinue
 
     if (-not (Test-Path "$condaRoot\Scripts\conda.exe")) {
         Write-Host ""
-        Write-Host " ERRO: Instalacao do Miniconda falhou."
-        Read-Host "Prime ENTER para sair"
+        Write-Host " ERROR: Miniconda installation failed."
+        Read-Host "Press ENTER to exit"
         exit 1
     }
-    Write-Host " OK - Miniconda instalado."
+    Write-Host " OK - Miniconda installed."
 }
 
 $condaExe = "$condaRoot\Scripts\conda.exe"
 Write-Host " OK - Conda: $condaRoot"
 
 # ================================================================
-# 1. INSTALAR MAMBA
+# 1. INSTALL MAMBA
 # ================================================================
 Write-Host ""
-Write-Host "[1/4] A instalar mamba (isto pode demorar alguns minutos)..."
+Write-Host "[1/4] Installing mamba (this can take a few minutes)..."
 
 & $condaExe install -y -n base -c conda-forge mamba
 
-# No Windows o mamba instala como .bat (nao .exe)
+# On Windows mamba installs as a .bat file (not .exe)
 $solver = $condaExe
 if (Test-Path "$condaRoot\Scripts\mamba.bat") {
     $solver = "$condaRoot\Scripts\mamba.bat"
-    Write-Host " OK - mamba instalado."
+    Write-Host " OK - mamba installed."
 } elseif (Test-Path "$condaRoot\condabin\mamba.bat") {
     $solver = "$condaRoot\condabin\mamba.bat"
-    Write-Host " OK - mamba instalado."
+    Write-Host " OK - mamba installed."
 } else {
-    Write-Host " AVISO: mamba.bat nao encontrado - a usar conda diretamente."
+    Write-Host " WARNING: mamba.bat not found - using conda directly."
 }
 
 # ================================================================
-# 2. CRIAR AMBIENTE sleap_env
+# 2. CREATE sleap_env ENVIRONMENT
 # ================================================================
 Write-Host ""
-Write-Host "[2/4] A criar ambiente sleap_env..."
-Write-Host "      (pode demorar 10-20 minutos)"
+Write-Host "[2/4] Creating sleap_env environment..."
+Write-Host "      (this can take 10-20 minutes)"
 Write-Host ""
 
 $envList = & $condaExe env list 2>$null
 if ($envList -match 'sleap_env') {
-    Write-Host " Ambiente sleap_env ja existe - a saltar."
+    Write-Host " sleap_env environment already exists - skipping."
 } else {
     & $solver create -y -n sleap_env `
         -c conda-forge -c nvidia -c sleap -c anaconda `
@@ -131,49 +131,51 @@ if ($envList -match 'sleap_env') {
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""
-        Write-Host " ERRO: Falhou a criacao do ambiente."
-        Write-Host " Verifica a ligacao a internet e tenta novamente."
-        Read-Host "Prime ENTER para sair"
+        Write-Host " ERROR: Failed to create environment."
+        Write-Host " Check your internet connection and try again."
+        Read-Host "Press ENTER to exit"
         exit 1
     }
     Write-Host ""
-    Write-Host " OK - Ambiente sleap_env criado."
+    Write-Host " OK - sleap_env environment created."
 
-    # Corrigir webcolors (versao nova incompativel com Python 3.7)
-    & $condaExe run -n sleap_env pip install -q "webcolors==1.11.1"
+    $envPip = "$condaRoot\envs\sleap_env\Scripts\pip.exe"
 
-    # Reinstalar Pillow via pip (wheel bundla DLLs no Windows, evita erros de DLL)
-    & $condaExe run -n sleap_env pip install -q --force-reinstall "pillow<10"
+    # Fix webcolors (newer version syntax incompatible with Python 3.7)
+    & $envPip install -q "webcolors==1.11.1"
 
-    # Corrigir aviso requests/charset-normalizer
-    & $condaExe run -n sleap_env pip install -q "charset-normalizer<3"
+    # Reinstall Pillow via pip (wheel bundles DLLs on Windows, avoiding DLL load failures)
+    & $envPip install -q --force-reinstall "pillow<10"
+
+    # Fix requests/charset-normalizer warning
+    & $envPip install -q "charset-normalizer<3"
 }
 
 # ================================================================
-# 3. REGISTAR KERNEL NO JUPYTER
+# 3. REGISTER JUPYTER KERNEL
 # ================================================================
 Write-Host ""
-Write-Host "[3/4] A registar kernel no Jupyter..."
+Write-Host "[3/4] Registering Jupyter kernel..."
 
 & $condaExe run -n sleap_env python -m ipykernel install --user --name sleap_env --display-name "Python (sleap_env)"
 if ($LASTEXITCODE -eq 0) {
-    Write-Host ' OK - Kernel "Python (sleap_env)" registado.'
+    Write-Host ' OK - Kernel "Python (sleap_env)" registered.'
 } else {
-    Write-Host " AVISO: Falhou o registo do kernel. Tenta manualmente depois:"
+    Write-Host " WARNING: Kernel registration failed. Try manually afterwards:"
     Write-Host "        conda activate sleap_env"
     Write-Host "        python -m ipykernel install --user --name sleap_env"
 }
 
 # ================================================================
-# 4. DESCARREGAR MODELO DO GITHUB
+# 4. DOWNLOAD MODEL FROM GITHUB
 # ================================================================
 Write-Host ""
-Write-Host "[4/4] A descarregar modelo SLEAP (Moita Lab)..."
+Write-Host "[4/4] Downloading SLEAP model (Moita Lab)..."
 
 $scriptDir = $PSScriptRoot
 
 if (Test-Path "$scriptDir\Sleap_Model\.git") {
-    Write-Host " Modelo ja existe. A verificar atualizacoes..."
+    Write-Host " Model already exists. Checking for updates..."
     Push-Location "$scriptDir\Sleap_Model"
     git pull *> $null
     Pop-Location
@@ -187,7 +189,7 @@ if (Test-Path "$scriptDir\Sleap_Model\.git") {
     }
 
     if (-not $cloned) {
-        Write-Host " git nao encontrado ou falhou - a descarregar ZIP..."
+        Write-Host " git not found or failed - downloading ZIP instead..."
         $modelZip = "$env:TEMP\sleap_model.zip"
         try {
             $ProgressPreference = 'SilentlyContinue'
@@ -197,28 +199,28 @@ if (Test-Path "$scriptDir\Sleap_Model\.git") {
                 Rename-Item "$scriptDir\Sleap_Colab-main" "Sleap_Model"
             }
             Remove-Item $modelZip -ErrorAction SilentlyContinue
-            Write-Host " OK - Modelo extraido."
+            Write-Host " OK - Model extracted."
         } catch {
-            Write-Host " AVISO: Nao foi possivel descarregar o modelo."
-            Write-Host "        Descarrega manualmente: https://github.com/moitalab/Sleap_Colab"
-            Write-Host '        e coloca a pasta com o nome "Sleap_Model" ao lado deste script.'
+            Write-Host " WARNING: Could not download the model."
+            Write-Host "          Download manually: https://github.com/moitalab/Sleap_Colab"
+            Write-Host '          and place the folder named "Sleap_Model" next to this script.'
         }
     }
 }
 
 Write-Host ""
 Write-Host "====================================================="
-Write-Host " Setup concluido!"
+Write-Host " Setup complete!"
 Write-Host "====================================================="
 Write-Host ""
-Write-Host " Para comecar:"
+Write-Host " To get started:"
 Write-Host ""
-Write-Host " 1. Abre um novo PowerShell e corre:"
+Write-Host " 1. Open a new PowerShell window and run:"
 Write-Host "       $condaExe run -n sleap_env jupyter lab"
 Write-Host ""
-Write-Host " 2. Abre SLEAP_Local.ipynb"
-Write-Host ' 3. Seleciona o kernel "Python (sleap_env)"'
-Write-Host " 4. Preenche a celula de configuracao e corre os 3 passos"
+Write-Host " 2. Open SLEAP_Local.ipynb"
+Write-Host ' 3. Select the "Python (sleap_env)" kernel'
+Write-Host " 4. Fill in the configuration cell and run the 3 steps"
 Write-Host ""
 Write-Host "====================================================="
-Read-Host "Prime ENTER para sair"
+Read-Host "Press ENTER to exit"
