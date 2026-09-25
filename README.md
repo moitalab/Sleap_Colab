@@ -42,9 +42,9 @@ A GPU is optional but strongly recommended — CPU-only inference can take 1–4
 
 ### Setup scripts (local only)
 * `setup_env.bat` / `setup_env.sh` — one-time, fully automatic setup (installs Miniconda + mamba, creates the `sleap_env` environment, registers the Jupyter kernel, downloads the model).
-* `abrir_jupyter.bat` / `abrir_jupyter.sh` — launches Jupyter Notebook with the `sleap_env` environment ready to use.
+* `open_jupyter.bat` / `open_jupyter.sh` — launches Jupyter Notebook with the `sleap_env` environment ready to use.
 
-> **Platform support note:** `setup_env.bat` / `abrir_jupyter.bat` (Windows) are tested and confirmed working. `setup_env.sh` / `abrir_jupyter.sh` (macOS/Linux) are a best-effort adaptation that has **not** been run on a real Mac or Linux machine yet — Apple Silicon Macs in particular may need extra steps (see the comments at the top of `setup_env.sh`). Please report any issues so the scripts can be fixed.
+> **Platform support note:** `setup_env.bat` / `open_jupyter.bat` (Windows) are tested and confirmed working. `setup_env.sh` / `open_jupyter.sh` (macOS/Linux) are a best-effort adaptation that has **not** been run on a real Mac or Linux machine yet — Apple Silicon Macs in particular may need extra steps (see the comments at the top of `setup_env.sh`). Please report any issues so the scripts can be fixed.
 
 ---
 
