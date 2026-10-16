@@ -46,7 +46,7 @@ A GPU is optional but strongly recommended — CPU-only inference can take 1–4
 
 > **Windows 11 - Smart App Control:** if *Smart App Control* is ON (Settings > Privacy & security > Windows Security > App & browser control), Windows blocks parts of the Python/SLEAP packages (unsigned files) and the local setup cannot work. `setup_env` detects this and stops with instructions. Either turn Smart App Control off yourself (it can only be re-enabled by reinstalling Windows; ask IT on managed PCs) or use the Google Colab notebooks.
 
-> **Platform support note:** `setup_env.bat` / `open_jupyter.bat` (Windows) are tested and confirmed working. `setup_env.sh` / `open_jupyter.sh` (macOS/Linux) are a best-effort adaptation that has **not** been run on a real Mac or Linux machine yet — Apple Silicon Macs in particular may need extra steps (see the comments at the top of `setup_env.sh`). Please report any issues so the scripts can be fixed.
+> **Platform support note:** the Windows scripts (`setup_env.bat` / `open_jupyter.bat`, which run `setup_env.ps1` / `open_jupyter.ps1`) are tested and working. If anything goes wrong, just run `setup_env.bat` again - it repairs the environment and tells you what to do. `setup_env.sh` / `open_jupyter.sh` (macOS/Linux) use the same logic but have **not** been run on a real Mac or Linux machine yet - Apple Silicon Macs in particular may need extra steps (see the comments at the top of `setup_env.sh`). Please report any issues so the scripts can be fixed.
 
 ---
 
